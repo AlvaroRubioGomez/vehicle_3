@@ -4,7 +4,8 @@ classdef (StrictDefaults)setControlTargets < matlab.System & matlab.system.mixin
     properties
         lateralController_type  = 0;
         purePursuit_lookAhead   = 0;
-        clothoidBased_lookAhead = 0
+        clothoidBased_lookAhead = 0;
+        previewPoint_lookAhead = 0;
         refRoute_points         = zeros(1000,4);
         Lf                      = 0;
         x_parkLot               = 0;
@@ -54,9 +55,9 @@ classdef (StrictDefaults)setControlTargets < matlab.System & matlab.system.mixin
             targetPoint_latControl = [x_lookAhead,y_lookAhead,theta_lookAhead,curv_lookAhead];
         %PREVIEW POINT IMPLEMENTATION
         elseif (obj.lateralController_type==5)
-            x_targetPoint = x_vehCoM + LookAhead*cos(vehPose(3));
+            x_targetPoint = x_vehCoM + obj.previewPoint_lookAhead*cos(vehPose(3));
             %y_targetPoint = x_vehCoM + LookAhead*cos(vehPose(3)); ORIGINAL
-            y_targetPoint = y_vehCoM + LookAhead*cos(vehPose(3));
+            y_targetPoint = y_vehCoM + obj.previewPoint_lookAhead*cos(vehPose(3));
             [~,~,s_closest,~] = obj.vehRoute.closestPoint(x_targetPoint,y_targetPoint);
             [~,~,theta_lookAhead,~] = obj.vehRoute.evaluate(s_closest);
             %outputs_previewPoint = [dist_fromTarget, theta_lookAhead - vehPose(3)]; %FIX THIS
