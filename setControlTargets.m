@@ -42,6 +42,7 @@ classdef (StrictDefaults)setControlTargets < matlab.System & matlab.system.mixin
             % Use pure pursuit arc path following or clothoid-based lateral controller.
             % Curvilinear coord of the point belonging to the road middle line
             % that is closest w.r.t. the current vehicle position
+            %[~,~,s_closest,~] = obj.vehRoute.closestPoint(x_vehCoM,y_vehCoM);
             [~,~,s_closest,~] = obj.vehRoute.closestPoint(x_vehCoM,y_vehCoM);
             if (obj.lateralController_type==1)
                 curvAbscissa_lookAhead = s_closest+obj.purePursuit_lookAhead;
@@ -55,13 +56,28 @@ classdef (StrictDefaults)setControlTargets < matlab.System & matlab.system.mixin
             targetPoint_latControl = [x_lookAhead,y_lookAhead,theta_lookAhead,curv_lookAhead];
         %PREVIEW POINT IMPLEMENTATION
         elseif (obj.lateralController_type==5)
-            x_targetPoint = x_vehCoM + obj.previewPoint_lookAhead*cos(vehPose(3));
-            %y_targetPoint = x_vehCoM + LookAhead*cos(vehPose(3)); ORIGINAL
-            y_targetPoint = y_vehCoM + obj.previewPoint_lookAhead*cos(vehPose(3));
-            [~,~,s_closest,~] = obj.vehRoute.closestPoint(x_targetPoint,y_targetPoint);
+            x_targetPoint = x_vehCoM + obj.previewPoint_lookAhead*cos(theta_vehCoM);           
+            y_targetPoint = y_vehCoM + obj.previewPoint_lookAhead*sin(theta_vehCoM);
+            [x_closest,y_closest,s_closest,~] = obj.vehRoute.closestPoint(x_targetPoint,y_targetPoint);
             [~,~,theta_lookAhead,~] = obj.vehRoute.evaluate(s_closest);
             %outputs_previewPoint = [dist_fromTarget, theta_lookAhead - vehPose(3)]; %FIX THIS
-            targetPoint_latControl = [x_targetPoint,y_targetPoint,theta_lookAhead,0];
+            %targetPoint_latControl = [x_targetPoint,y_targetPoint,theta_lookAhead,0];
+            
+            % Compute lateral path tracking error             
+            ep = sqrt((x_closest - x_targetPoint)^2 + (y_closest - y_targetPoint)^2);
+            
+            %compute heading error            
+            theta_e = theta_lookAhead - theta_vehCoM;
+            
+            %Check turn
+            %Line btw vehicle position and look ahead point
+            if(((x_targetPoint - x_vehCoM)*(y_closest - y_vehCoM) ...
+                    - (y_targetPoint - y_vehCoM)*(x_closest - x_vehCoM)) < 0) %right turn
+                ep = -ep;        
+                theta_e = -theta_e;               
+            end            
+            
+            targetPoint_latControl = [ep, 0, theta_e, 0];
         else  
             % Use Stanley lateral controller.  
             % Point of the vehicle in correspondence with the rear axle
@@ -75,7 +91,9 @@ classdef (StrictDefaults)setControlTargets < matlab.System & matlab.system.mixin
         end
         
         % desired vehicle speed [m/s]
-        speed_req = 30/3.6;  
+        %speed_req = 30/3.6; 
+        speed_req = 50/3.6; 
+        %speed_req = 70/3.6;
         if (x_vehCoM>=obj.x_parkLot && y_vehCoM>obj.y_lowBound_parkLot && y_vehCoM<obj.y_uppBound_parkLot)   % (s_closest >= obj.vehRoute.length-10)
             speed_req = 0.1;  % brake when reaching the parking lot
             endOfCircuit = 1; % flag to indicate whether the end of the circuit has been reached or not

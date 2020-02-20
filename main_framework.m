@@ -8,7 +8,7 @@
 %% Initialize
 clc
 % clear all
-% close all
+% close  all
 clearvars
 clear functions
 format long;
@@ -32,7 +32,7 @@ addpath('./Clothoids-develop/matlab');
 
 % Set this flag to 0 to disable route planning and load a precomputed route
 % to decrease simulation time
-enable_routePlan = 0;
+enable_routePlan = 1;
 
 %% Open Simulink model
 % Check if the Simulink model is already opened. Otherwise open it
@@ -73,6 +73,7 @@ Kb = 10;
 purePursuitParams   = purePursuitControllerParams();
 stanleyParams       = stanleyControllerParams();
 clothoidBasedParams = clothoidBasedControllerParams();
+previewPointParams = previewPointControllerParams();
 
 %% Select lateral controller type
 select_lateralController;

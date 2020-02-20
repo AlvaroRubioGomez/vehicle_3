@@ -2,8 +2,8 @@ classdef (StrictDefaults)PreviewPoint_lateralController < matlab.System & matlab
     
     %% Public, tunable properties
     properties
-        k1 = 1;
-        k2 = 1;       
+        k1 = 0;
+        k2 = 0;       
     end
 
 %     %% Private properties
@@ -21,33 +21,39 @@ classdef (StrictDefaults)PreviewPoint_lateralController < matlab.System & matlab
     end
 
     %% stepImpl - called at each time step
-    function [delta_req] = stepImpl(obj,targetPoint,vehPose,vehSpeed)
+    function [delta_req] = stepImpl(obj,targetPoint,vehPose,vehSpeed,endOfCircuit)
         % Extract vehicle center of mass position
-        x_vehCoM = vehPose(1);      % Current vehicle CoM x coord [m]
-        y_vehCoM = vehPose(2);      % Current vehicle CoM y coord [m]
-        theta_vehCoM = vehPose(3);  % Current vehicle attitude [rad]
+%         x_vehCoM = vehPose(1);      % Current vehicle CoM x coord [m]
+%         y_vehCoM = vehPose(2);      % Current vehicle CoM y coord [m]
+%         theta_vehCoM = vehPose(3);  % Current vehicle attitude [rad]
         
         % Extract the parameters of the target point
-        x_target = targetPoint(1);      % Target x coord [m]
-        y_target = targetPoint(2);      % Target y coord [m]
-        theta_target = targetPoint(3);  % Target vehicle attitude [rad]
+        ep = targetPoint(1);        
+        theta_e = targetPoint(3);
         
+              
 %         % Build the clothoid from the current vehicle pose to the target point
 %         obj.clothoid.build_G1(x_vehCoM,y_vehCoM,theta_vehCoM, x_target,y_target,theta_target);
 %         initCurv = obj.clothoid.kappaBegin();  % initial clothoid curvature
         
-        % Compute lateral path tracking error 
-        [x_closest,y_closest,~,~] = obj.vehRoute.closestPoint(x_target,y_target);
-        ep = sqrt((x_closest - x_target)^2, (y_closest - y_target)^2);
-        if(y_vehCoM <= y_closest)
-            ep = -ep; %depending on which side of the curve, apply sign
-        end
-        
-        % Compute heading error
-        theta_e = theta_target - theta_vehCoM;        
-        
+%         % Compute lateral path tracking error 
+%         [x_closest,y_closest,~,~] = obj.vehRoute.closestPoint(x_target,y_target);
+%         ep = sqrt((x_closest - x_target)^2, (y_closest - y_target)^2);
+%         if(y_vehCoM <= y_closest)
+%             ep = -ep; %depending on which side of the curve, apply sign
+%         end
+%         
+%         % Compute heading error
+%         theta_e = theta_target - theta_vehCoM;     
+%         
+
         % Compute the desired steering angle
-        delta_req = obj.k1*ep + obj.k2*theta_e;
+        if (~endOfCircuit)
+            delta_req = obj.k1*ep + obj.k2*theta_e;
+            %delta_req = obj.k2*theta_e;
+        else
+            delta_req = 0;
+        end
     end
 
     

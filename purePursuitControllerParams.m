@@ -5,7 +5,7 @@ function purePursuitParams = purePursuitControllerParams()
     % ----------------------------------------------------------------
     
     % Look ahead distance (in meters) used by the controller
-    purePursuitParams.lookAhead = 20; 
+    purePursuitParams.lookAhead = 5; 
 
 end
 

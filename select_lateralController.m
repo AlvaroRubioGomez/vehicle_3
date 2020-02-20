@@ -10,4 +10,4 @@
 %   o latContr_select = 4 --> clothoid-based
 %   o latContr_select = 5 --> preview-point
 % -------------------
-latContr_select = 5;
+latContr_select = 4;

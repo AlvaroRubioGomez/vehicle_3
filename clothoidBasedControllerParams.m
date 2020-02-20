@@ -5,10 +5,10 @@ function clothoidBasedParams = clothoidBasedControllerParams()
     % ----------------------------------------------------------------
     
     % Look ahead distance (in meters) used by the controller
-    clothoidBasedParams.lookAhead = 10; 
+    clothoidBasedParams.lookAhead = 20; 
     
     % Understeering gradient
-    clothoidBasedParams.Kus = -8*10^(-4); 
+    clothoidBasedParams.Kus = -6.616097414955689*10^(-4); 
 
 end
 

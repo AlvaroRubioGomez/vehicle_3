@@ -31,7 +31,7 @@ classdef (StrictDefaults)clothoidBased_lateralController < matlab.System & matla
         % Extract the parameters of the target point
         x_target = targetPoint(1);      % Target x coord [m]
         y_target = targetPoint(2);      % Target y coord [m]
-        theta_target = targetPoint(3);  % Target vehicle attitude [rad]
+        theta_target = targetPoint(3);  % Target vehicle attitude [rad]      
         
         % Build the clothoid from the current vehicle pose to the target point
         obj.clothoid.build_G1(x_vehCoM,y_vehCoM,theta_vehCoM, x_target,y_target,theta_target);
